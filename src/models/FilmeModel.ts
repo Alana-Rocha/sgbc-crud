@@ -1,14 +1,13 @@
-import { executeQuery } from "../database/connection";
+import { Collection, ObjectId } from 'mongodb';
+import { connectDb } from '../database/connection';
 
 type FilmeModelProps = {
-  id?: number;
   titulo: string;
   duracao: number;
   genero: string;
 };
 
 export class FilmeModel implements FilmeModelProps {
-  id?: number;
   titulo: string;
   duracao: number;
   genero: string;
@@ -17,52 +16,55 @@ export class FilmeModel implements FilmeModelProps {
     Object.assign(this, props);
   }
 
-  static async create(filme: Omit<FilmeModel, "id">) {
-    const sql = `INSERT INTO filmes (titulo, duracao, genero) VALUES ("${filme.titulo}", ${filme.duracao}, "${filme.genero}");`;
-    await executeQuery(sql);
+  private static async getCollection(): Promise<Collection> {
+    const db = await connectDb(); 
+    return db.collection('filmes'); 
+  }
+
+  static async create(filme: Omit<FilmeModel, 'id'>) {
+    const collection = await this.getCollection();
+    const result = await collection.insertOne(filme);
     console.log("Filme cadastrado com sucesso!");
-    return;
+    return result;
   }
 
   static async read() {
-    const sql = "SELECT * FROM filmes WHERE updatedAt IS NULL;";
-    const filmes = await executeQuery<FilmeModel[]>(sql);
-    console.table(filmes);
-    return;
+    const collection = await this.getCollection();
+    const filmes = await collection.find().toArray();
+    console.table(filmes, ['titulo', 'duracao', 'genero']);
+    return filmes;
   }
 
   static async count() {
-    const sql =
-      "SELECT COUNT(*) AS filmesQtd FROM filmes WHERE updatedAt IS NULL;";
-    const filmesQtd = await executeQuery<{ filmesQtd: number }[]>(sql);
-    return filmesQtd[0].filmesQtd;
+    const collection = await this.getCollection();
+    const count = await collection.countDocuments();
+    return count;
   }
 
   static async update(filme: FilmeModel) {
-    const sql = `
-    UPDATE mydb.filmes
-    SET titulo = '${filme.titulo}',
-        duracao = '${filme.duracao}',
-        genero = '${filme.genero}'
-    WHERE id = ${filme.id}; 
-`;
-    await executeQuery(sql);
+    const collection = await this.getCollection();
+    await collection.updateOne(
+      { _id: filme._id },
+      { $set: { titulo: filme.titulo, duracao: filme.duracao, genero: filme.genero } }
+    );
     console.log("\nFilme atualizado com sucesso!\n");
-    return;
   }
 
-  static async delete(filme_id: number) {
-    const sql = ` UPDATE mydb.filmes 
-                  SET updatedAt = current_timestamp()
-                  WHERE id = ${filme_id};`;
-    await executeQuery(sql);
+  static async delete(filme_id: string) {
+    const collection = await this.getCollection();
+    const result = await collection.deleteOne(
+      { _id: new ObjectId(filme_id) }
+    );
+
     console.log("Filme removido com sucesso");
-    return;
+
+    return result;
   }
 
-  static async find(filme_id: number): Promise<FilmeModel> {
-    const sql = `SELECT * FROM mydb.filmes WHERE id = ${filme_id};`;
-    const filmes = await executeQuery(sql);
-    return filmes;
+
+  static async find(filme_id: string): Promise<FilmeModel | null> {
+    const collection = await this.getCollection();
+    const filme = await collection.findOne({ _id: new ObjectId(filme_id) });
+    return filme;
   }
 }

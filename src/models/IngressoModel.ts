@@ -1,15 +1,14 @@
-import { executeQuery } from "../database/connection";
+import { Collection, ObjectId } from 'mongodb';
+import { connectDb } from '../database/connection';
 
 type IngressoModelProps = {
-  id?: number;
-  sessao_id: number;
+  sessao_id: ObjectId;
   poltrona_id: number;
   cpf_cliente: string;
 };
 
 export class IngressoModel implements IngressoModelProps {
-  id?: number;
-  sessao_id: number;
+  sessao_id: ObjectId;
   poltrona_id: number;
   cpf_cliente: string;
 
@@ -17,27 +16,58 @@ export class IngressoModel implements IngressoModelProps {
     Object.assign(this, props);
   }
 
-  static async create(ingresso: Omit<IngressoModel, "id">) {
-    const sql = `INSERT INTO ingressos (sessao_id, poltrona_id, cpf_cliente) VALUES ("${ingresso.sessao_id}", ${ingresso.poltrona_id}, "${ingresso.cpf_cliente}");`;
-    await executeQuery(sql);
-    console.log("Ingresso vendido com sucesso!");
+  private static async getCollection(): Promise<Collection> {
+    const db = await connectDb();
+    return db.collection('ingressos');
   }
 
+  static async create(ingresso: Omit<IngressoModel, 'id'>) {
+    const collection = await this.getCollection();
+    const result = await collection.insertOne(ingresso);
+    return result;
+  }
+
+
   static async read() {
-    const sql = "SELECT * FROM ingressos;";
-    const ingressos = await executeQuery(sql);
+    const collection = await this.getCollection();
+    const ingressos = await collection.find().toArray();
+    console.table(ingressos);
     return ingressos;
   }
 
   static async findByCpf(cpf: string) {
-    const sql = `SELECT * FROM ingressos WHERE cpf_cliente = ${cpf}`;
-    const ingressos = await executeQuery<IngressoModel[]>(sql);
-    return ingressos[0];
+    const collection = await this.getCollection();
+    const ingressos = await collection.find({ cpf_cliente: cpf }).toArray();
+    return ingressos;
+  }
+
+  static async findBySessao(sessao_id: ObjectId): Promise<IngressoModel[]> {
+    const collection = await this.getCollection();
+    const ingressos = await collection.find({ sessao_id }).toArray();
+
+    return ingressos;
   }
 
   static async count() {
-    const sql = "SELECT COUNT(*) AS ingressosQtd FROM ingressos;";
-    const ingressosQtd = await executeQuery<{ ingressosQtd: number }[]>(sql);
-    return ingressosQtd[0].ingressosQtd;
+    const collection = await this.getCollection();
+    const count = await collection.countDocuments();
+    return count;
+  }
+
+  static async delete(ingresso_id: string) {
+    const collection = await this.getCollection();
+    const result = await collection.updateOne(
+      { _id: new ObjectId(ingresso_id) }, 
+      { $set: { updatedAt: new Date() } }  
+    );
+  
+    return result;
+  }
+
+  // Encontrar um ingresso por ID
+  static async find(ingresso_id: string): Promise<IngressoModel | null> {
+    const collection = await this.getCollection();
+    const ingresso = await collection.findOne({ _id: new ObjectId(ingresso_id) }); // Encontra ingresso pelo _id
+    return ingresso;
   }
 }

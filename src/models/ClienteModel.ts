@@ -1,58 +1,71 @@
-import { executeQuery } from "../database/connection";
+import { Collection } from 'mongodb';
+import { connectDb } from '../database/connection';
 
 type ClienteModelProps = {
   cpf: string;
-  nome: string;
+  nome_cliente: string;
   idade: number;
 };
 
 export class ClienteModel implements ClienteModelProps {
   cpf: string;
-  nome: string;
+  nome_cliente: string;
   idade: number;
 
   constructor(props: ClienteModelProps) {
     Object.assign(this, props);
   }
 
+  private static async getCollection(): Promise<Collection> {
+    const db = await connectDb();
+    return db.collection('clientes');
+  }
+
   static async create(cliente: ClienteModel) {
-    const sql = `INSERT INTO cliente (cpf, nome_cliente, idade) VALUES ("${cliente.cpf}", "${cliente.nome}", ${cliente.idade})`;
-    await executeQuery(sql);
+    const collection = await this.getCollection();
+    await collection.insertOne(cliente);
+    console.log("\nCliente cadastrado com sucesso!!!\n");
   }
 
   static async count() {
-    const sql = "SELECT COUNT(*) AS clienteQtd FROM cliente";
-    const result = await executeQuery<{ clienteQtd: number }[]>(sql);
-    return result[0].clienteQtd;
+    const collection = await this.getCollection();
+    const count = await collection.countDocuments();
+    return count;
   }
 
   static async findByCpf(cpf: string) {
-    const sql = `SELECT * FROM cliente WHERE cpf = "${cpf}"`;
-    const cliente = await executeQuery<ClienteModel[]>(sql);
-    return cliente[0];
+    const collection = await this.getCollection();
+    const cliente = await collection.findOne({ cpf });
+    return cliente;
   }
 
   static async read() {
-    const sql = "SELECT * FROM cliente";
-    const clientes = await executeQuery<ClienteModel[]>(sql);
-    return console.table(clientes);
+    const collection = await this.getCollection();
+    const clientes = await collection.find().toArray();
+
+    console.table(clientes, ['cpf', 'nome_cliente']);
+
+    return clientes;
   }
 
   static async update(cliente: ClienteModel) {
-    const sql = `
-    UPDATE mydb.cliente
-    SET nome_cliente = '${cliente.nome}',
-        idade = '${cliente.idade}'
-    WHERE cpf = ${cliente.cpf}; 
-`;
-    await executeQuery(sql);
+    const collection = await this.getCollection();
+    await collection.updateOne(
+      { cpf: cliente.cpf },
+      { $set: { nome: cliente.nome, idade: cliente.idade } }
+    );
     console.log("\nCliente atualizado com sucesso!\n");
-    return;
   }
 
   static async delete(cpf: string) {
-    const sql = `DELETE FROM ingressos WHERE cpf_cliente = "${cpf}";
-                 DELETE FROM cliente WHERE cpf = "${cpf}";`;
-    await executeQuery(sql);
+    const collection = await this.getCollection();
+    
+    // // Deletar ingressos associados antes de deletar o cliente
+    // const db = await connectDb();
+    // const ingressoCollection = db.collection('ingressos');
+    // await ingressoCollection.deleteMany({ cpf_cliente: cpf });
+    
+    await collection.deleteOne({ cpf });
+    console.log("\nCliente deletado com sucesso!\n");
   }
 }

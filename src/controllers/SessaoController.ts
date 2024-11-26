@@ -1,17 +1,18 @@
 import { FilmeModel } from "../models/FilmeModel";
+import { IngressoModel } from "../models/IngressoModel";
 import SalaModel from "../models/SalaModel";
 import { SessaoModel } from "../models/SessaoModel";
 import { scan } from "../utils/scan";
 
 export class SessaoController {
   async inserir() {
-    await FilmeModel.read();
+    const filmes = await FilmeModel.read();
+    const filmeIndex = +scan("Índice do filme: ");
+    const filme = filmes[filmeIndex];
 
-    const filme_id = +scan("Id do filme: ");
-
-    await SalaModel.read();
-
-    const sala_id = +scan("Id da sala: ");
+    const salas = await SalaModel.read();
+    const salaIndex = +scan("Índice da sala: ");
+    const sala = salas[salaIndex];
 
     const horario_dia = scan("Digite o dia de inicio do filme (DD): ");
 
@@ -19,13 +20,17 @@ export class SessaoController {
 
     const horario_ano = scan("Digite o ano de inicio do filme (AAAA): ");
 
-    const horario_hora = +scan("Digite a hora de inicio do filme (hh): ") - 3;
+    const horario_hora = +scan("Digite a hora de inicio do filme (hh): ");
 
     const horario_minuto = scan("Digite os minutos de inicio do filme (mm): ");
 
     const horario_inicio = `${horario_ano}-${horario_mes}-${horario_dia} ${horario_hora.toString()}:${horario_minuto}:00`;
 
-    const sessao = new SessaoModel({ filme_id, sala_id, horario_inicio });
+    const sessao = new SessaoModel({ 
+      filme_id: filme._id, 
+      sala_id: sala._id, 
+      horario_inicio 
+    });
 
     await SessaoModel.create(sessao);
   }
@@ -81,11 +86,12 @@ export class SessaoController {
   }
 
   async excluir() {
-    await SessaoModel.read();
 
-    const id = +scan("Digite o id da sessão que deseja excluir: ");
+    const sessoes = await SessaoModel.read();
+    const sessaoIndex = +scan("Digite o índice da sessão que deseja excluir: ");
+    const sessao = sessoes[sessaoIndex];
 
-    const sessaoFilme = await SessaoModel.find(id);
+    const sessaoFilme = await SessaoModel.find(sessao._id);
 
     if (!sessaoFilme) {
       console.log("Esta sessão não existe em nossa base de dados.");
@@ -93,7 +99,12 @@ export class SessaoController {
       return;
     }
 
-    console.log("Existem registros vinculados a essa sessão.");
+    const ingressosVinculados = await IngressoModel.findBySessao(sessao._id);
+
+    if(ingressosVinculados.length > 0){
+      console.log("Não foi possível excluir esta sessão pois há ingressos vinculados a essa sessão.");
+      return;
+    }
 
     let mensagemAviso = "Confirmar ação? (1-Sim | 2-Não): ";
 
@@ -104,7 +115,6 @@ export class SessaoController {
       return;
     }
 
-    await SessaoModel.delete(id);
-    console.log("Sessão excluída com sucesso.");
+    await SessaoModel.delete(sessao._id);
   }
 }

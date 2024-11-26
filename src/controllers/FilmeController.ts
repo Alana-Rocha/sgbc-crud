@@ -33,24 +33,25 @@ export class FilmeController {
   }
 
   async excluir() {
-    await FilmeModel.read();
+    const filmes = await FilmeModel.read();
+    const filmeIndex = +scan("Índice do filme: ");
+    const filme = filmes[filmeIndex];
 
-    const filme_id = +scan("Id do filme: ");
+    const sessoesVinculadas = await SessaoModel.findByFilme(filme._id);
 
-    const filmes = await SessaoModel.findByFilme(filme_id);
-    const filme = await FilmeModel.find(filme_id);
-
-    if (!filmes || !filme) {
+    if (!filme) {
       console.log("Este Filme não existe em nossa base de dados.");
       console.log("Voltando para o menu principal...");
       return;
     }
 
-    let mensagemAviso = "Confirmar ação? (1-Sim | 2-Não): ";
-
-    if (filmes) {
-      mensagemAviso = "Existe uma Sessão para esse Filme. " + mensagemAviso;
+    if (sessoesVinculadas.length > 0) {
+      console.log("Você nao pode excluir este filme pois há alguma sessão vinculada a ele!");
+      console.log("Voltando para o menu principal...");
+      return;
     }
+
+    let mensagemAviso = "Confirmar ação? (1-Sim | 2-Não): ";
 
     const confirmarAcao = scan(mensagemAviso);
 
@@ -59,7 +60,7 @@ export class FilmeController {
       return;
     }
 
-    await FilmeModel.delete(filme_id);
+    await FilmeModel.delete(filme._id.toString());
 
     return;
   }

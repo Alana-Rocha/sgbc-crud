@@ -1,83 +1,91 @@
-import { executeQuery } from "../database/connection";
-import { FilmeModel } from "./FilmeModel";
+import { Collection, ObjectId } from 'mongodb';
+import { connectDb } from '../database/connection';
+import { FilmeModel } from './FilmeModel';
+import  SalaModel  from './SalaModel';
 
-type SessaoModelProps = {
-  id?: number;
-  filme_id: number;
-  sala_id: number;
+export type SessaoModelProps = {
+  filme_id: ObjectId;
+  sala_id: ObjectId;
   horario_inicio: string;
 };
 
 export class SessaoModel implements SessaoModelProps {
-  id?: number;
-  filme_id: number;
-  sala_id: number;
+  filme_id: ObjectId;
+  sala_id: ObjectId;
   horario_inicio: string;
 
   constructor(props: SessaoModelProps) {
     Object.assign(this, props);
   }
+
+  private static async getCollection(): Promise<Collection> {
+    const db = await connectDb(); 
+    return db.collection('sessoes');
+  }
+
   static async create(sessao: Omit<SessaoModel, "id">) {
-    const sql = `INSERT INTO mydb.sessoes (filme_id, sala_id, horario_inicio) VALUES (${sessao.filme_id}, ${sessao.sala_id}, '${sessao.horario_inicio}');`;
-    await executeQuery(sql);
+    const collection = await this.getCollection();
+    await collection.insertOne(sessao);
     console.log("Sessão criada com sucesso!");
   }
 
   static async read() {
-    const sql = `SELECT
-                    sessoes.id,
-                    filmes.titulo AS nome_filme,
-                    salas.nome AS nome_sala,
-                    sessoes.horario_inicio
-                  FROM
-                    mydb.sessoes
-                  JOIN
-                    filmes ON sessoes.filme_id = filmes.id
-                  JOIN
-                    salas ON sessoes.sala_id = salas.id
-                  WHERE sessoes.updatedAt IS NULL;`;
-    const sessoes = await executeQuery(sql);
-    return console.table(sessoes);
+    const collection = await this.getCollection();
+    const sessoes = await collection.find().toArray();
+
+    const sessoesDetalhadas = await Promise.all(
+      sessoes.map(async (sessao) => {
+        const sala = await SalaModel.find(sessao.sala_id);
+        const filme = await FilmeModel.find(sessao.filme_id);
+        return {
+          _id: sessao._id,
+          index: sessao.index,
+          sala_id: sessao.sala_id.toString(),
+          nome_sala: sala.nome,
+          nome_filme: filme.titulo,
+          horario_inicio: sessao.horario_inicio,
+        };
+      })
+    );
+    
+    console.table(sessoesDetalhadas, ['nome_sala', 'nome_filme', 'horario_inicio']);
+    return sessoesDetalhadas;
   }
 
   static async update(sessao: SessaoModel) {
-    const sql = `
-    UPDATE mydb.sessoes
-    SET filme_id = '${sessao.filme_id}',
-        sala_id = '${sessao.sala_id}',
-        horario_inicio = '${sessao.horario_inicio}'
-    WHERE id = ${sessao.id}; 
-`;
-    await executeQuery(sql);
+    const collection = await this.getCollection();
+    await collection.updateOne(
+      { _id: new ObjectId(sessao.filme_id) },
+      { $set: { filme_id: sessao.filme_id, sala_id: sessao.sala_id, horario_inicio: sessao.horario_inicio } }
+    );
     console.log("\nSessão atualizada com sucesso!\n");
-    return;
   }
 
-  static async find(sessao_id: number): Promise<SessaoModel> {
-    const sql = `SELECT * FROM mydb.sessoes WHERE id = ${sessao_id}`;
-    const sessao = await executeQuery(sql);
-    return sessao;
+  static async find(sessao_id: ObjectId): Promise<SessaoModel | null> {
+    const collection = await this.getCollection();
+    const sessao = await collection.findOne({ _id: sessao_id });
+    return sessao ? new SessaoModel(sessao as SessaoModelProps) : null; // Converte para SessaoModel
   }
 
-  static async findByFilme(filme_id: number): Promise<FilmeModel> {
-    const sql = `SELECT * FROM mydb.sessoes WHERE filme_id = ${filme_id};`;
-    const filmes = await executeQuery(sql);
-    return filmes;
+  static async findByFilme(filme_id: ObjectId): Promise<SessaoModel[]> {
+    const collection = await this.getCollection();
+    const sessoes = await collection.find({ filme_id }).toArray();
+
+    return sessoes;
   }
 
   static async count() {
-    const sql =
-      "SELECT COUNT(*) AS sessaoQtd FROM mydb.sessoes WHERE updatedAt IS NULL;";
-    const sessaoQtd = await executeQuery<{ sessaoQtd: number }[]>(sql);
-    return sessaoQtd[0].sessaoQtd;
+    const collection = await this.getCollection();
+    const count = await collection.countDocuments({ updatedAt: { $exists: false } });
+    return count;
   }
 
-  static async delete(id: number) {
-    const sql = ` UPDATE mydb.sessoes
-                  SET updatedAt = current_timestamp()
-                  WHERE id = ${id};
-    `;
-    await executeQuery(sql);
-    console.log("Sessão removida com sucesso");
+  static async delete(id: ObjectId) {
+    const collection = await this.getCollection();
+    await collection.deleteOne(
+      { _id: id }
+    );
+
+    console.log("Sessão excluída com sucesso.");
   }
 }

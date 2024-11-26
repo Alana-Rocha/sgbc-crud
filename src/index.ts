@@ -1,10 +1,9 @@
 import { setTimeout } from "node:timers/promises";
 import { MenuController } from "./controllers/MenuController";
-import { connectDb, disconnectDb } from "./database/connection";
+import { disconnectDb } from "./database/connection";
 import { scan } from "./utils/scan";
 
 const main = async () => {
-  await connectDb();
 
   const menuController = new MenuController();
 

@@ -1,39 +1,36 @@
-import mysql from "mysql2";
-import { readFileSync } from "node:fs";
+import { MongoClient, Db } from 'mongodb';
+import populateDatabase from '../database/populate-tables';
 
-const connection = mysql.createConnection({
-  host: process.env.HOST,
-  port: process.env.PORT ? +process.env.PORT : 3306,
-  user: process.env.USR,
-  password: process.env.PASSWORD,
-  database: process.env.DATABASE,
-  multipleStatements: true,
-});
-
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export async function executeQuery<T = any>(sql: string): Promise<T> {
-  const result = await new Promise((resolve, reject) => {
-    connection.query(sql, (error, result) =>
-      error ? reject(error) : resolve(result)
-    );
-  });
-  return result as T;
-}
+let client: MongoClient | null = null;
+let db: Db | null = null;
 
 export async function connectDb() {
-  connection.connect();
 
-  const createTablesSQL = readFileSync("sql/create-tables.sql", "utf-8");
-  const populateTablesSQL = readFileSync("sql/populate-tables.sql", "utf-8");
-  const createTriggersSQL = readFileSync("sql/create-triggers.sql", "utf-8");
-  const addRelationSQL = readFileSync("sql/add-relation.sql", "utf-8");
+  const mongoURI = process.env.MONGO_URI || 'mongodb+srv://victor7oliveiras:1lvIDXcDEsvmxPiu@sgbc.7qlne.mongodb.net/sgbc';
 
-  await executeQuery(createTablesSQL);
-  await executeQuery(addRelationSQL);
-  await executeQuery(populateTablesSQL);
-  await executeQuery(createTriggersSQL);
+  if (client) {
+    return db;
+  }
+
+  try {
+    client = await MongoClient.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
+    db = client.db('sgbc');  // Substitua 'sgbc' pelo nome do banco de dados desejado
+    await populateDatabase();
+    console.log("Conectado ao MongoDB!");
+    return db;
+  } catch (error) {
+    console.error("Erro ao conectar ao MongoDB:", error);
+    throw error;
+  }
 }
 
-export function disconnectDb() {
-  connection.end();
+export async function disconnectDb() {
+  if (client) {
+    await client.close();
+    console.log("Desconectado do MongoDB!");
+    client = null;
+    db = null;
+  } else {
+    console.log("Não há conexão ativa para ser desconectada.");
+  }
 }

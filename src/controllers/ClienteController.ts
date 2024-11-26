@@ -12,13 +12,12 @@ export class ClienteController {
       return;
     }
 
-    const nome = scan("Digite o nome do cliente: ");
+    const nome_cliente = scan("Digite o nome do cliente: ");
     const idade = +scan("Digite a idade: ");
 
-    const novoCliente = new ClienteModel({ cpf, idade, nome });
+    const novoCliente = new ClienteModel({ cpf, idade, nome_cliente });
 
     await ClienteModel.create(novoCliente);
-    console.log("\nCliente cadastrado com sucesso!!!\n");
   }
 
   async listar() {
@@ -65,6 +64,5 @@ export class ClienteController {
     }
 
     await ClienteModel.delete(cpf);
-    console.log("Cliente excluído com sucesso.");
   }
 }

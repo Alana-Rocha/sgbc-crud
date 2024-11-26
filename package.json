@@ -13,6 +13,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "mongodb": "^6.11.0",
+    "mongoose": "^8.8.3",
     "mysql2": "^3.11.3",
     "prompt-sync": "^4.2.0"
   },
