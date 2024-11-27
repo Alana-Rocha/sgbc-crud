@@ -16,8 +16,8 @@ export async function connectDb() {
   try {
     client = new MongoClient(mongoURI);
     await client.connect();
-    db = client.db("smartRanking");
-    await populateDatabase();
+    db = client.db("sgbc");
+    await populateDatabase(db);
     return db;
   } catch (error) {
     console.error("Erro ao conectar ao MongoDB:", error);

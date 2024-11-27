@@ -12,8 +12,8 @@ async function collectionExists(
   return collections.some((collection) => collection.name === collectionName);
 }
 
-export default async function populateDatabase() {
-  const db = await connectDb();
+export default async function populateDatabase(db : Db) {
+  db = await connectDb();
 
   if (!db) {
     console.error("Falha ao conectar ao banco de dados.");
@@ -292,4 +292,4 @@ export default async function populateDatabase() {
   }
 }
 
-populateDatabase().catch(console.error);
+// populateDatabase().catch(console.error);
