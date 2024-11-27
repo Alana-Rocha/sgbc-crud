@@ -55,7 +55,7 @@ export class SessaoModel implements SessaoModelProps {
   static async update(sessao: SessaoModel) {
     const collection = await this.getCollection();
     await collection.updateOne(
-      { _id: new ObjectId(sessao.filme_id) },
+      { _id: sessao._id },
       { $set: { filme_id: sessao.filme_id, sala_id: sessao.sala_id, horario_inicio: sessao.horario_inicio } }
     );
     console.log("\nSessão atualizada com sucesso!\n");

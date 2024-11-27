@@ -20,13 +20,26 @@ export class FilmeController {
   }
 
   async atualizar() {
-    await FilmeModel.read();
-    const id = +scan("Atualizar pelo Id do filme: ");
+    const filmes = await FilmeModel.read();
+    const filmeIndex = +scan("Atualizar pelo índice do filme: ");
+    
+    if (filmeIndex < 0 || filmeIndex >= filmes.length) {
+      console.log("Índice de filme inválido. Voltando ao menu principal...");
+      return;
+    }
+
+    const filme = filmes[filmeIndex];
+
     const titulo = scan("Titulo do novo filme: ");
     const duracao = +scan("Duração do novo filme: ");
     const genero = scan("Gênero do novo filme: ");
 
-    const filmeAtualizado = new FilmeModel({ id, titulo, duracao, genero });
+    const filmeAtualizado = new FilmeModel({
+      _id: filme._id,
+      titulo,
+      duracao,
+      genero
+    });
 
     await FilmeModel.update(filmeAtualizado);
     return;

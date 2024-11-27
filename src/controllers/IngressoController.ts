@@ -21,7 +21,12 @@ export class IngressoController {
       console.log("Índice de poltrona inválido. Voltando ao menu principal...");
       return;
     }
+    
     const poltrona = poltronas[poltronaIndex];
+    if(!await PoltronaModel.verificaPoltrona(poltrona._id)){
+      console.log("Poltrona escolhida já ocupada! Voltando ao menu principal...");
+      return;
+    }
 
     await ClienteModel.read();
     const cpf_cliente = scan("CPF do Cliente: ");

@@ -36,23 +36,30 @@ export class SessaoController {
   }
 
   async atualizar() {
-    await SessaoModel.read();
+    const sessoes = await SessaoModel.read();
 
-    const sessao_id = +scan("Id da sessão que deseja atualizar: ");
-
-    const sessao = await SessaoModel.find(sessao_id);
-
-    if (!sessao) {
-      console.log("Sessão não existe em nossa base de dados.");
-      console.log("Voltando ao menu principal...");
+    const sessaoIndex = +scan("Índice da sessão que deseja atualizar: ");
+    if (sessaoIndex < 0 || sessaoIndex >= sessoes.length) {
+      console.log("Índice de sessao inválido. Voltando ao menu principal...");
       return;
     }
+    const sessao = sessoes[sessaoIndex];
 
-    await FilmeModel.read();
-    const novoFilme = +scan("Id do filme: ");
+    const filmes = await FilmeModel.read();
+    const novoFilmeIndex = +scan("Indice do novo filme: ");
+    if (novoFilmeIndex < 0 || novoFilmeIndex >= filmes.length) {
+      console.log("Índice de filme inválido. Voltando ao menu principal...");
+      return;
+    }
+    const novoFilme = filmes[novoFilmeIndex];
 
-    await SalaModel.read();
-    const novaSala = +scan("Id da sala: ");
+    const salas = await SalaModel.read();
+    const novaSalaIndex = +scan("Index da nova sala: ");
+    if (novaSalaIndex < 0 || novaSalaIndex >= salas.length) {
+      console.log("Índice de sala inválido. Voltando ao menu principal...");
+      return;
+    }
+    const novaSala = salas[novaSalaIndex];
 
     const novo_horario_dia = scan("Digite o dia de inicio do filme (DD): ");
 
@@ -70,10 +77,10 @@ export class SessaoController {
     const novo_horario_inicio = `${novo_horario_ano}-${novo_horario_mes}-${novo_horario_dia} ${novo_horario_hora.toString()}:${novo_horario_minuto}:00`;
 
     const nova_sessao = {
-      filme_id: novoFilme,
-      sala_id: novaSala,
+      filme_id: novoFilme._id,
+      sala_id: novaSala._id,
       horario_inicio: novo_horario_inicio,
-      id: sessao_id,
+      _id: sessao._id,
     };
 
     await SessaoModel.update(nova_sessao);

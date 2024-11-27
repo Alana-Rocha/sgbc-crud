@@ -49,31 +49,31 @@ export default async function populateDatabase() {
   if (!(await collectionExists(db, 'poltronas'))) {
     const salasInseridas = await db.collection('salas').find().toArray();
     const poltronas = [
-      { sala_id: salasInseridas[0]._id, numero_poltrona: 'A1', status_poltrona: 'DESOCUPADA' },
+      { sala_id: salasInseridas[0]._id, numero_poltrona: 'A1', status_poltrona: 'OCUPADA' },
       { sala_id: salasInseridas[0]._id, numero_poltrona: 'A2', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[0]._id, numero_poltrona: 'A3', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[0]._id, numero_poltrona: 'A4', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[0]._id, numero_poltrona: 'A5', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[1]._id, numero_poltrona: 'B1', status_poltrona: 'DESOCUPADA' },
-      { sala_id: salasInseridas[1]._id, numero_poltrona: 'B2', status_poltrona: 'DESOCUPADA' },
+      { sala_id: salasInseridas[1]._id, numero_poltrona: 'B2', status_poltrona: 'OCUPADA' },
       { sala_id: salasInseridas[1]._id, numero_poltrona: 'B3', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[1]._id, numero_poltrona: 'B4', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[1]._id, numero_poltrona: 'B5', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[2]._id, numero_poltrona: 'C1', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[2]._id, numero_poltrona: 'C2', status_poltrona: 'DESOCUPADA' },
-      { sala_id: salasInseridas[2]._id, numero_poltrona: 'C3', status_poltrona: 'DESOCUPADA' },
+      { sala_id: salasInseridas[2]._id, numero_poltrona: 'C3', status_poltrona: 'OCUPADA' },
       { sala_id: salasInseridas[2]._id, numero_poltrona: 'C4', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[2]._id, numero_poltrona: 'C5', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[3]._id, numero_poltrona: 'D1', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[3]._id, numero_poltrona: 'D2', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[3]._id, numero_poltrona: 'D3', status_poltrona: 'DESOCUPADA' },
-      { sala_id: salasInseridas[3]._id, numero_poltrona: 'D4', status_poltrona: 'DESOCUPADA' },
+      { sala_id: salasInseridas[3]._id, numero_poltrona: 'D4', status_poltrona: 'OCUPADA' },
       { sala_id: salasInseridas[3]._id, numero_poltrona: 'D5', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[4]._id, numero_poltrona: 'E1', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[4]._id, numero_poltrona: 'E2', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[4]._id, numero_poltrona: 'E3', status_poltrona: 'DESOCUPADA' },
       { sala_id: salasInseridas[4]._id, numero_poltrona: 'E4', status_poltrona: 'DESOCUPADA' },
-      { sala_id: salasInseridas[4]._id, numero_poltrona: 'E5', status_poltrona: 'DESOCUPADA' }
+      { sala_id: salasInseridas[4]._id, numero_poltrona: 'E5', status_poltrona: 'OCUPADA' }
     ];
     await db.collection('poltronas').insertMany(poltronas, { ordered: false });
     populated = true;
@@ -98,10 +98,10 @@ export default async function populateDatabase() {
     const poltronasInseridas = await db.collection('poltronas').find().toArray();
     const ingressos = [
       { sessao_id: sessoesInseridas[0]._id, poltrona_id: poltronasInseridas[0]._id, cpf_cliente: '12345678901' },
-      { sessao_id: sessoesInseridas[1]._id, poltrona_id: poltronasInseridas[1]._id, cpf_cliente: '12345678902' },
-      { sessao_id: sessoesInseridas[2]._id, poltrona_id: poltronasInseridas[2]._id, cpf_cliente: '12345678903' },
-      { sessao_id: sessoesInseridas[3]._id, poltrona_id: poltronasInseridas[3]._id, cpf_cliente: '12345678904' },
-      { sessao_id: sessoesInseridas[4]._id, poltrona_id: poltronasInseridas[4]._id, cpf_cliente: '12345678905' },
+      { sessao_id: sessoesInseridas[1]._id, poltrona_id: poltronasInseridas[6]._id, cpf_cliente: '12345678902' },
+      { sessao_id: sessoesInseridas[2]._id, poltrona_id: poltronasInseridas[12]._id, cpf_cliente: '12345678903' },
+      { sessao_id: sessoesInseridas[3]._id, poltrona_id: poltronasInseridas[18]._id, cpf_cliente: '12345678904' },
+      { sessao_id: sessoesInseridas[4]._id, poltrona_id: poltronasInseridas[24]._id, cpf_cliente: '12345678905' },
     ];
     await db.collection('ingressos').insertMany(ingressos, { ordered: false });
     populated = true;
