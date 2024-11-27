@@ -68,7 +68,7 @@ export class SessaoController {
     const novo_horario_ano = scan("Digite o ano de inicio do filme (AAAA): ");
 
     const novo_horario_hora =
-      +scan("Digite a hora de inicio do filme (hh): ") - 3;
+      +scan("Digite a hora de inicio do filme (hh): ");
 
     const novo_horario_minuto = scan(
       "Digite os minutos de inicio do filme (mm): "

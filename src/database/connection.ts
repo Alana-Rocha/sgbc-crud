@@ -7,7 +7,7 @@ let db: Db;
 export async function connectDb() {
   const mongoURI =
     process.env.MONGO_URI ||
-    "mongodb+srv://smartRanking:TSsMoUnou1cqvUyH@smartranking.n9oxy.mongodb.net/?retryWrites=true&w=majority&appName=smartRanking";
+    "mongodb+srv://victor7oliveiras:1lvIDXcDEsvmxPiu@sgbc.7qlne.mongodb.net/sgbc";
 
   if (client) {
     return db;
