@@ -1,17 +1,16 @@
 # Sistema de Gerenciamento de Bilheteria de Cinema (SGBC)
 
-Este projeto é um sistema de gerenciamento de cinema desenvolvido em **TypeScript**. Ele utiliza scripts **SQL** para integração com o banco de dados e foi projetado para gerenciar registros simples com uma interface de usuário intuitiva. O sistema segue uma arquitetura modular, separando as responsabilidades entre controle, visualização e modelos de dados.
+Este projeto é um sistema de gerenciamento de cinema desenvolvido em **TypeScript**. Ele utiliza **MongoDB** para integração com o banco de dados não relacioanl e foi projetado para gerenciar registros simples com uma interface de usuário intuitiva. O sistema segue uma arquitetura modular, separando as responsabilidades entre controle, visualização e modelos de dados.
 
 ## Diretórios Principais
 
 - [diagrams](diagrams): Contém diagramas do sistema, como o modelo de dados e o fluxo de navegação.
-- [sql](sql): Inclui scripts SQL para criar e popular o banco de dados com os esquemas necessários.
 - [src](src): Abriga toda a lógica do aplicativo.
 
 ## Funcionalidades
 
 - **CRUD Completo**: Permite a criação, leitura, atualização e exclusão de registros em um banco de dados.
-- **Integração com SQL**: O banco de dados é configurado utilizando scripts SQL fornecidos na pasta `sql/`.
+- **Integração com MongoDB**: O banco de dados é configurado utilizando um arquivo de configuração na pasta `database/connection.ts` e os scripts de inicialização ou coleções podem ser encontrados na pasta `database/populate-table.ts`.
 - **Separação de Preocupações**: O sistema separa responsabilidades entre modelos de dados, controle de operações e visualização.
 - **Desenvolvido em TypeScript**: O código é tipado, proporcionando maior segurança e escalabilidade.
 - **Ambiente configurável com SWC e Yarn**: Utiliza SWC para uma compilação rápida e Yarn para o gerenciamento de dependências.
@@ -22,7 +21,9 @@ Antes de iniciar, certifique-se de ter as seguintes ferramentas instaladas em su
 
 - **Node.js**
 - **Yarn**
-- Um banco de dados SQL compatível, como MySQL.
+- Um cluster iniciado no MongoDB. Você pode usar:
+  Uma instância local do MongoDB. Baixe em mongodb.com
+  Ou um cluster remoto através do MongoDB Atlas. Configure o cluster no MongoDB Atlas.
 
 ## Instalação Node.js e TypeScript no Linux
 
@@ -33,20 +34,23 @@ Antes de iniciar, certifique-se de ter as seguintes ferramentas instaladas em su
    ```
 2. #### Adicionar o repositório do Node.js 20
    - Adicione o repositório que contém a versão 20 do Node.js:
-    ```bash
-    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-    ```
+   ```bash
+   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+   ```
 3. #### Instalar o Node.js 20
    - Agora, instale o Node.js versão 20:
-    ```bash
-    apt-get install nodejs -y
-    ```
+   ```bash
+   apt-get install nodejs -y
+   ```
 4. #### Verificar a instalação
+
    - Verifique se o Node.js foi instalado corretamente:
-    ```bash
-    node -v
-    ```
-    - Deve mostrar a versão 20 do Node.js.
+
+   ```bash
+   node -v
+   ```
+
+   - Deve mostrar a versão 20 do Node.js.
 
 5. #### Instalar o Yarn
    - Para instalar o Yarn, primeiro adicione o repositório do Yarn:
@@ -65,15 +69,15 @@ Antes de iniciar, certifique-se de ter as seguintes ferramentas instaladas em su
     yarn -v
    ```
 7. #### Instalar o TypeScript via Yarn
-    - Agora, instale o TypeScript globalmente usando o Yarn:
-    ```bash
-    yarn global add typescript
-    ```
+   - Agora, instale o TypeScript globalmente usando o Yarn:
+   ```bash
+   yarn global add typescript
+   ```
 8. #### Verificar a instalação do TypeScript
-    - Por fim, verifique se o TypeScript foi instalado corretamente com o comando:
-    ```bash
-    tsc -v
-    ```
+   - Por fim, verifique se o TypeScript foi instalado corretamente com o comando:
+   ```bash
+   tsc -v
+   ```
 
 ## Instalação e configuração
 
@@ -89,35 +93,24 @@ Antes de iniciar, certifique-se de ter as seguintes ferramentas instaladas em su
    yarn install
    ```
 3. #### Configurar banco de dados
-   - Criar Arquivo `.env` no Linux dentro de cd ./sgbc-crud/ com o comando:
-   ```bash
-   touch .env
-   ```
-   - Edite o arquivo para adicionar as variáveis de ambiente necessárias:
-   ```bash
-   nano .env
-   ```
-   - Exemplo de conteúdo:
-   ```makefile
-   HOST=""
-   PORT=""
-   DATABASE=""
-   PASSWORD=""
-   USR=""
-   ```
-   -	Preencha as variáveis de ambiente com os dados corretos de conexão com o banco de dados.
+   - Criar Cluster remoto no mongodb Atlas e conectar utilizando drivers
+   - Copie o link e cole na variável mongoURI na pasta src/database/connection.ts
 4. #### Iniciar o servidor de desenvolvimento
-  - Após configurar o banco de dados e as dependências, você pode iniciar o servidor de desenvolvimento:
-   ```bash
-   yarn start
-   ```
-## Arquivos Importantes
-  - [package.json](packege.jason): Lista todas as dependências e scripts do projeto.
-  - [biome.json](biome.json): Arquivo de configuração do Biome para estilização e linting do código.
-  - [.swcrc](.swcrc): Arquivo de configuração do compilador SWC, utilizado para compilar TypeScript rapidamente.
-  - [yarn.lock](yarn.lock): Mantém o controle das versões exatas das dependências para garantir que o ambiente seja reproduzível.
-  - [.env.example](.env.example): Exemplo de configuração de variáveis de ambiente.
 
+- Após configurar o banco de dados e as dependências, você pode iniciar o servidor de desenvolvimento:
+
+```bash
+yarn start
+```
+
+## Arquivos Importantes
+
+- [package.json](packege.jason): Lista todas as dependências e scripts do projeto.
+- [biome.json](biome.json): Arquivo de configuração do Biome para estilização e linting do código.
+- [.swcrc](.swcrc): Arquivo de configuração do compilador SWC, utilizado para compilar TypeScript rapidamente.
+- [yarn.lock](yarn.lock): Mantém o controle das versões exatas das dependências para garantir que o ambiente seja reproduzível.
+- [.env.example](.env.example): Exemplo de configuração de variáveis de ambiente.
 
 ## Link do video no youtube
+
 https://www.youtube.com/watch?v=PJqd1m88EDI
