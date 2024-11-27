@@ -16,7 +16,6 @@ export async function connectDb() {
     client = await MongoClient.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
     db = client.db('sgbc');  // Substitua 'sgbc' pelo nome do banco de dados desejado
     await populateDatabase();
-    console.log("Conectado ao MongoDB!");
     return db;
   } catch (error) {
     console.error("Erro ao conectar ao MongoDB:", error);
@@ -27,7 +26,6 @@ export async function connectDb() {
 export async function disconnectDb() {
   if (client) {
     await client.close();
-    console.log("Desconectado do MongoDB!");
     client = null;
     db = null;
   } else {

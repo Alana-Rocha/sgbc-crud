@@ -29,10 +29,18 @@ export class ClienteController {
     await ClienteModel.read();
 
     const cpf = scan("Atualizar pelo CPF do cliente: ");
-    const nome = scan("Novo nome: ");
+    const clienteExiste = await ClienteModel.findByCpf(cpf);
+
+    if (!clienteExiste) {
+      console.log("Este CPF não existe em nossa base de dados.");
+      console.log("Voltando para o menu principal...");
+      return;
+    }
+
+    const nome_cliente = scan("Novo nome: ");
     const idade = +scan("Nova idade: ");
 
-    const clienteAtualizado = new ClienteModel({ cpf, nome, idade });
+    const clienteAtualizado = new ClienteModel({ cpf, nome_cliente, idade });
 
     await ClienteModel.update(clienteAtualizado);
   }
@@ -50,11 +58,13 @@ export class ClienteController {
       return;
     }
 
-    let mensagemAviso = "Confirmar ação? (1-Sim | 2-Não): ";
-
-    if (ingressoCliente) {
-      mensagemAviso = "Existe um ingresso para esse cliente. " + mensagemAviso;
+    if (ingressoCliente.length > 0) {
+      console.log("Você não pode excluir este cliente pois há ingresso vinculado a ele!")
+      console.log("Voltando para o menu principal...");
+      return;
     }
+
+    let mensagemAviso = "Confirmar ação? (1-Sim | 2-Não): ";
 
     const confirmarAcao = scan(mensagemAviso);
 

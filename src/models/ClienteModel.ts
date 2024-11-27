@@ -43,7 +43,7 @@ export class ClienteModel implements ClienteModelProps {
     const collection = await this.getCollection();
     const clientes = await collection.find().toArray();
 
-    console.table(clientes, ['cpf', 'nome_cliente']);
+    console.table(clientes, ['cpf', 'nome_cliente', 'idade']);
 
     return clientes;
   }
@@ -52,7 +52,7 @@ export class ClienteModel implements ClienteModelProps {
     const collection = await this.getCollection();
     await collection.updateOne(
       { cpf: cliente.cpf },
-      { $set: { nome: cliente.nome, idade: cliente.idade } }
+      { $set: { nome_cliente: cliente.nome_cliente, idade: cliente.idade } }
     );
     console.log("\nCliente atualizado com sucesso!\n");
   }
