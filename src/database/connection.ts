@@ -1,20 +1,22 @@
-import { MongoClient, Db } from 'mongodb';
-import populateDatabase from '../database/populate-tables';
+import { Db, MongoClient } from "mongodb";
+import populateDatabase from "../database/populate-tables";
 
 let client: MongoClient | null = null;
 let db: Db | null = null;
 
 export async function connectDb() {
-
-  const mongoURI = process.env.MONGO_URI || 'mongodb+srv://victor7oliveiras:1lvIDXcDEsvmxPiu@sgbc.7qlne.mongodb.net/sgbc';
+  const mongoURI =
+    process.env.MONGO_URI ||
+    "mongodb+srv://smartRanking:TSsMoUnou1cqvUyH@smartranking.n9oxy.mongodb.net/?retryWrites=true&w=majority&appName=smartRanking";
 
   if (client) {
     return db;
   }
 
   try {
-    client = await MongoClient.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
-    db = client.db('sgbc');  // Substitua 'sgbc' pelo nome do banco de dados desejado
+    client = new MongoClient(mongoURI);
+    await client.connect();
+    db = client.db("smartRanking");
     await populateDatabase();
     return db;
   } catch (error) {
@@ -22,7 +24,6 @@ export async function connectDb() {
     throw error;
   }
 }
-
 export async function disconnectDb() {
   if (client) {
     await client.close();
