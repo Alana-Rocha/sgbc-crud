@@ -1,8 +1,8 @@
 import { Db, MongoClient } from "mongodb";
 import populateDatabase from "../database/populate-tables";
 
-let client: MongoClient | null = null;
-let db: Db | null = null;
+let client: MongoClient;
+let db: Db;
 
 export async function connectDb() {
   const mongoURI =
@@ -27,8 +27,6 @@ export async function connectDb() {
 export async function disconnectDb() {
   if (client) {
     await client.close();
-    client = null;
-    db = null;
   } else {
     console.log("Não há conexão ativa para ser desconectada.");
   }

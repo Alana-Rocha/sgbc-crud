@@ -4,7 +4,6 @@ import { disconnectDb } from "./database/connection";
 import { scan } from "./utils/scan";
 
 const main = async () => {
-
   const menuController = new MenuController();
 
   while (true) {
@@ -21,15 +20,13 @@ const main = async () => {
     }
 
     if (opt === 5) {
-      disconnectDb();
+      await disconnectDb();
       console.log("\nSaindo...\n");
       break;
     }
 
     await menuController.mostrarSubMenu(+opt);
     await setTimeout(1000);
-
-
   }
 };
 

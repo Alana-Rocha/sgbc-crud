@@ -42,7 +42,9 @@ export class IngressoModel implements IngressoModelProps {
 
   static async findBySessao(sessao_id: ObjectId): Promise<IngressoModel[]> {
     const collection = await this.getCollection();
-    const ingressos = await collection.find({ sessao_id }).toArray();
+    const ingressos = await collection
+      .find<IngressoModel>({ sessao_id })
+      .toArray();
 
     return ingressos;
   }
@@ -64,11 +66,16 @@ export class IngressoModel implements IngressoModelProps {
   }
 
   // Encontrar um ingresso por ID
-  static async find(ingresso_id: string): Promise<IngressoModel | null> {
+  static async find(ingresso_id: string): Promise<IngressoModel> {
     const collection = await this.getCollection();
-    const ingresso = await collection.findOne({
+    const ingresso = await collection.findOne<IngressoModel>({
       _id: new ObjectId(ingresso_id),
-    }); // Encontra ingresso pelo _id
+    }); // Especifica o tipo de retorno
+
+    if (!ingresso) {
+      throw new Error(`Ingresso com ID ${ingresso_id} não encontrado.`);
+    }
+
     return ingresso;
   }
 }
